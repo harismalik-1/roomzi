@@ -1,18 +1,22 @@
-# Frontend-only Dockerfile for Railway - Minimal Build
+# Root Dockerfile that delegates to frontend
 FROM node:18-alpine as build
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy frontend package files
+COPY frontend/package*.json ./
 
-# Install only production dependencies to reduce size
-RUN npm ci --only=production --silent
+# Install dependencies
+RUN npm ci --silent
 
-# Copy source code
-COPY . .
+# Copy frontend source code
+COPY frontend/ ./
 
-# Build with minimal output
+# Build the application with environment variables
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_MAPBOX_TOKEN
 RUN npm run build
 
 # Production stage
@@ -25,4 +29,4 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } location /health { return 200 "OK"; } }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"] 
