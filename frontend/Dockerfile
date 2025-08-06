@@ -4,16 +4,16 @@ FROM node:20-alpine as build
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only frontend package files
+COPY package.json package-lock.json* ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code
+# Copy frontend source code
 COPY . .
 
-# Build the application with environment variables
+# Build the application
 RUN npm run build
 
 # Production stage with Nginx

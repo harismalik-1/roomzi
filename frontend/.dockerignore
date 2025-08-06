@@ -17,3 +17,9 @@ coverage
 *.test.ts
 *.spec.js
 *.spec.ts
+# Ignore any root files that might interfere
+../package.json
+../package-lock.json
+../node_modules
+../backend
+../CICD
