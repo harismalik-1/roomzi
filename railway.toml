@@ -1,8 +1,14 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "frontend/Dockerfile"
+buildCommand = "cd frontend && docker build -t frontend ."
 
 [deploy]
 startCommand = "nginx -g 'daemon off;'"
 healthcheckPath = "/health"
-healthcheckTimeout = 300
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+numReplicas = 1
+
+[env]
+PORT = "80"
