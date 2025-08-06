@@ -26,93 +26,24 @@ FROM nginx:alpine
 RUN apk add --no-cache curl
 
 # Create Railway-specific nginx config (no backend proxy)
-RUN cat > /etc/nginx/nginx.conf << 'EOF'
-events {
-    worker_connections 1024;
-    use epoll;
-    multi_accept on;
-}
-
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-
-    # Logging
-    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log /var/log/nginx/access.log main;
-    error_log /var/log/nginx/error.log warn;
-
-    # Performance optimizations
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    keepalive_timeout 65;
-    types_hash_max_size 2048;
-    client_max_body_size 10M;
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private auth;
-    gzip_comp_level 6;
-    gzip_types
-        text/plain
-        text/css
-        text/xml
-        text/javascript
-        application/javascript
-        application/xml+rss
-        application/json
-        application/xml
-        image/svg+xml;
-
-    server {
-        listen 80;
-        server_name localhost;
-        root /usr/share/nginx/html;
-        index index.html;
-
-        # Security headers
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-XSS-Protection "1; mode=block" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.mapbox.com https://*.supabase.co wss://*.supabase.co https://*.railway.app; frame-src 'self';" always;
-        add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-
-        # Health check endpoint
-        location /health {
-            access_log off;
-            return 200 "healthy\n";
-            add_header Content-Type text/plain;
-        }
-
-        # Handle React Router - catch all for SPA
-        location / {
-            try_files $uri $uri/ /index.html;
-            add_header Cache-Control "no-cache, no-store, must-revalidate";
-        }
-
-        # Cache static assets
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|avif)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-            add_header Vary "Accept-Encoding";
-        }
-
-        # Error pages
-        error_page 404 /index.html;
-        error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
-            root /usr/share/nginx/html;
-        }
-    }
-}
-EOF
+RUN echo 'events { worker_connections 1024; }' > /etc/nginx/nginx.conf && \
+    echo 'http {' >> /etc/nginx/nginx.conf && \
+    echo '  include /etc/nginx/mime.types;' >> /etc/nginx/nginx.conf && \
+    echo '  default_type application/octet-stream;' >> /etc/nginx/nginx.conf && \
+    echo '  sendfile on;' >> /etc/nginx/nginx.conf && \
+    echo '  keepalive_timeout 65;' >> /etc/nginx/nginx.conf && \
+    echo '  gzip on;' >> /etc/nginx/nginx.conf && \
+    echo '  gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;' >> /etc/nginx/nginx.conf && \
+    echo '  server {' >> /etc/nginx/nginx.conf && \
+    echo '    listen 80;' >> /etc/nginx/nginx.conf && \
+    echo '    root /usr/share/nginx/html;' >> /etc/nginx/nginx.conf && \
+    echo '    index index.html;' >> /etc/nginx/nginx.conf && \
+    echo '    location /health { return 200 "OK"; add_header Content-Type text/plain; }' >> /etc/nginx/nginx.conf && \
+    echo '    location / { try_files $uri $uri/ /index.html; }' >> /etc/nginx/nginx.conf && \
+    echo '    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ { expires 1y; add_header Cache-Control "public, immutable"; }' >> /etc/nginx/nginx.conf && \
+    echo '    error_page 404 /index.html;' >> /etc/nginx/nginx.conf && \
+    echo '  }' >> /etc/nginx/nginx.conf && \
+    echo '}' >> /etc/nginx/nginx.conf
 
 # Copy built frontend
 COPY --from=build /app/dist /usr/share/nginx/html
