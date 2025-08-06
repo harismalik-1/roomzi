@@ -1,53 +1,51 @@
-# This is a root-level Dockerfile for Railway deployment
-# Railway expects a Dockerfile in the root directory
-
-# Use the frontend Dockerfile from CICD directory
-FROM node:20-alpine as frontend-build
+# Railway Frontend Dockerfile
+FROM node:20-alpine as build
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for better caching
 COPY frontend/package*.json ./
-COPY frontend/bun.lockb ./
+
+# Check if bun.lockb exists and copy if it does
+COPY frontend/bun.lockb* ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --only=production=false
 
 # Copy frontend source
 COPY frontend/ .
 
-# Build the frontend
+# Build the frontend with all environment variables available
 RUN npm run build
 
 # Production stage with Nginx
 FROM nginx:alpine
 
-# Copy custom nginx config
-COPY CICD/nginx.conf /etc/nginx/nginx.conf
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Copy Railway-specific nginx config (no backend proxy)
+COPY nginx.railway.conf /etc/nginx/nginx.conf
 
 # Copy built frontend
-COPY --from=frontend-build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001 && \
-    chown -R nextjs:nodejs /usr/share/nginx/html && \
-    chown -R nextjs:nodejs /var/cache/nginx && \
-    chown -R nextjs:nodejs /var/log/nginx && \
-    chown -R nextjs:nodejs /etc/nginx/conf.d && \
-    touch /var/run/nginx.pid && \
-    chown -R nextjs:nodejs /var/run/nginx.pid
+# Create healthcheck endpoint
+RUN echo "healthy" > /usr/share/nginx/html/health
 
-# Switch to non-root user
-USER nextjs
+# Set proper permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chmod -R 755 /usr/share/nginx/html
 
 # Expose port
 EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD sh -c "if [ -f /usr/share/nginx/html/index.html ]; then exit 0; else exit 1; fi"
+  CMD curl -f http://localhost/health || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
