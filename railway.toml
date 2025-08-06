@@ -1,7 +1,6 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "frontend/Dockerfile"
-buildCommand = "cd frontend && docker build -t frontend ."
 
 [deploy]
 startCommand = "nginx -g 'daemon off;'"

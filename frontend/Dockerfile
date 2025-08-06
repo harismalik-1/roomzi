@@ -5,7 +5,8 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 # Copy only frontend package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
+COPY package-lock.json* ./
 
 # Install dependencies
 RUN npm ci
@@ -13,7 +14,7 @@ RUN npm ci
 # Copy frontend source code
 COPY . .
 
-# Build the application
+# Build the application (explicitly use frontend build)
 RUN npm run build
 
 # Production stage with Nginx
