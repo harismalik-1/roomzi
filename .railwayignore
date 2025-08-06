@@ -1,0 +1,26 @@
+# Railway ignore file
+node_modules
+.git
+.env.local
+.env.development
+.env.test
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.vscode
+.idea
+coverage
+dist
+build
+backend/uploads
+backend/node_modules
+frontend/node_modules
+*.md
+doc/
+tests/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts

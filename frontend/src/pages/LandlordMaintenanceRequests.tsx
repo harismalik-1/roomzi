@@ -1,12 +1,12 @@
 // frontend/src/pages/LandlordMaintenanceRequests.tsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Wrench, AlertCircle, X, UploadCloud } from "lucide-react";
+import { Loader2, ArrowLeft, Wrench, AlertCircle, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from '@/lib/supabaseClient';
+
 
 const statusOptions = ["Pending", "In Progress", "Completed", "Rejected"];
 
@@ -24,26 +24,29 @@ const LandlordMaintenanceRequests: React.FC = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const [modal, setModal] = useState<{id: number, action: string} | null>(null);
   const [comment, setComment] = useState("");
-  const [proofFiles, setProofFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRequests = async () => {
       if (!user?.id) return;
       setLoading(true);
-      const { data, error, count } = await supabase
-        .from('maintenance_requests')
-        .select('*', { count: 'exact' })
-        .eq('landlordId', user.id)
-        .order('createdAt', { ascending: false });
-      if (error) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/maintenance-requests/landlord/${user.id}`);
+        const data = await response.json();
+        
+        if (data.success && data.requests) {
+          setRequests(data.requests);
+          setPendingCount(data.requests.filter((r: any) => r.status === 'Pending').length);
+        } else {
+          console.error('Error fetching maintenance requests:', data.error);
+          setRequests([]);
+          setPendingCount(0);
+        }
+      } catch (error) {
+        console.error('Error fetching maintenance requests:', error);
         setRequests([]);
         setPendingCount(0);
-      } else {
-        setRequests(data || []);
-        setPendingCount((data || []).filter((r: any) => r.status === 'Pending').length);
       }
       setLoading(false);
     };
@@ -58,19 +61,29 @@ const LandlordMaintenanceRequests: React.FC = () => {
     if (status === 'Rejected' || status === 'Completed') {
       setModal({ id, action: status });
       setComment("");
-      setProofFiles([]);
       return;
     }
     // For Pending/In Progress, update directly
-    const { error } = await supabase
-      .from('maintenance_requests')
-      .update({ status })
-      .eq('id', id);
-    if (!error) {
-      setRequests(requests.map(r => r.id === id ? { ...r, status } : r));
-      setPendingCount(requests.filter(r => r.id !== id && r.status === 'Pending').length + (status === 'Pending' ? 1 : 0));
-    } else {
-      alert(error.message || "Failed to update status");
+    try {
+      const response = await fetch(`http://localhost:3001/api/maintenance-requests/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setRequests(requests.map(r => r.id === id ? { ...r, status } : r));
+        setPendingCount(requests.filter(r => r.id !== id && r.status === 'Pending').length + (status === 'Pending' ? 1 : 0));
+      } else {
+        alert(data.error || "Failed to update status");
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert("Failed to update status");
     }
   };
 
@@ -78,38 +91,37 @@ const LandlordMaintenanceRequests: React.FC = () => {
   const handleModalSubmit = async () => {
     if (!modal) return;
     setUploading(true);
-    let proofUrls: string[] = [];
-    if ((modal.action === 'Completed' || modal.action === 'Rejected') && proofFiles.length > 0) {
-      // Upload files to Supabase Storage or your backend
-      for (const file of proofFiles) {
-        const { data, error } = await supabase.storage.from('maintenance-proof').upload(`proofs/${Date.now()}-${file.name}`, file);
-        if (data && !error) {
-          const { data: publicUrlData } = supabase.storage.from('maintenance-proof').getPublicUrl(data.path);
-          if (publicUrlData && publicUrlData.publicUrl) {
-            proofUrls.push(publicUrlData.publicUrl);
-          }
-        }
+    
+    try {
+      const response = await fetch(`http://localhost:3001/api/maintenance-requests/${modal.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: modal.action, 
+          landlordcomment: comment 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setRequests(requests.map(r => r.id === modal.id ? { ...r, status: modal.action, landlordcomment: comment } : r));
+        setPendingCount(requests.filter(r => r.id !== modal.id && r.status === 'Pending').length);
+        setModal(null);
+      } else {
+        alert(data.error || "Failed to update status");
       }
+    } catch (error) {
+      console.error('Error updating maintenance request:', error);
+      alert("Failed to update status");
     }
-    const updateObj: any = { status: modal.action, landlordcomment: comment };
-    if (proofUrls.length > 0) updateObj.landlordproof = proofUrls;
-    const { error } = await supabase
-      .from('maintenance_requests')
-      .update(updateObj)
-      .eq('id', modal.id);
-    if (!error) {
-      setRequests(requests.map(r => r.id === modal.id ? { ...r, status: modal.action, landlordcomment: comment, landlordproof: proofUrls } : r));
-      setPendingCount(requests.filter(r => r.id !== modal.id && r.status === 'Pending').length);
-      setModal(null);
-    } else {
-      alert(error.message || "Failed to update status");
-    }
+    
     setUploading(false);
   };
 
-  const handleFileButtonClick = () => {
-    fileInputRef.current?.click();
-  };
+
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">

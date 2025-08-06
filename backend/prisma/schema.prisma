@@ -2,8 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-/// @seed="node prisma/seed.js"
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -118,7 +116,6 @@ model payment_requests {
   tenantId          String             @db.Uuid
   listing_id        String?            @db.Uuid
   landlord_profiles landlord_profiles? @relation(fields: [listing_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
 }
 
 model maintenance_requests {
@@ -162,4 +159,16 @@ model viewingRequest {
   landlord_profiles landlord_profiles @relation(fields: [landlordId], references: [id], onDelete: Cascade)
   listings          listings          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   tenant_profiles   tenant_profiles   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model notifications {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  type      String
+  title     String
+  message   String
+  data      Json     @default("{}")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 }

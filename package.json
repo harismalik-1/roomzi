@@ -1,7 +1,40 @@
 {
+  "name": "roomzi-home-finder",
+  "version": "1.0.0",
+  "description": "Full-stack housing platform with React frontend and Node.js backend",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm ci && npm run build",
+    "build:backend": "cd backend && npm ci && npm run build",
+    "start": "cd frontend && npm start",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  },
   "dependencies": {
     "axios": "^1.9.0",
     "chart.js": "^4.5.0",
     "react-chartjs-2": "^5.3.0"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/term-group-project-driven-devs"
+  },
+  "keywords": [
+    "housing",
+    "platform",
+    "react",
+    "nodejs",
+    "rental",
+    "property"
+  ]
 }
