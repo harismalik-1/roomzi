@@ -33,9 +33,31 @@ FROM nginx:alpine
 # Copy built files
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Simple nginx config
-RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } location /health { return 200 "OK"; } }' > /etc/nginx/conf.d/default.conf
+# Nginx config with cache-busting for JS/CSS
+RUN echo 'server { \
+  listen 80; \
+  root /usr/share/nginx/html; \
+  index index.html; \
+  \
+  # Cache-busting for JS/CSS files \
+  location ~* \.(js|css)$ { \
+    add_header Cache-Control "no-cache, no-store, must-revalidate"; \
+    add_header Pragma "no-cache"; \
+    add_header Expires "0"; \
+    try_files $uri =404; \
+  } \
+  \
+  # Default SPA routing \
+  location / { \
+    try_files $uri $uri/ /index.html; \
+  } \
+  \
+  # Health check \
+  location /health { \
+    return 200 "OK"; \
+  } \
+}' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-# Cache bust Thu Aug  7 00:35:00 EDT 2025 - COMPLETE REBUILD FORCE
+# Cache bust Thu Aug  7 00:40:00 EDT 2025 - FIX BROWSER CACHE ISSUE
 CMD ["nginx", "-g", "daemon off;"]
