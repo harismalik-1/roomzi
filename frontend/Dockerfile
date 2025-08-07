@@ -24,8 +24,8 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 ENV VITE_API_URL=$VITE_API_URL
 
-# Build with minimal output
-RUN npm run build
+# Build with minimal output - Force rebuild
+RUN echo "Building with VITE_API_URL: $VITE_API_URL" && npm run build
 
 # Production stage
 FROM nginx:alpine
@@ -37,5 +37,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } location /health { return 200 "OK"; } }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-# Cache bust Thu Aug  7 00:25:00 EDT 2025
+# Cache bust Thu Aug  7 00:35:00 EDT 2025 - COMPLETE REBUILD FORCE
 CMD ["nginx", "-g", "daemon off;"]
