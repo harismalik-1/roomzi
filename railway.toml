@@ -1,13 +1,24 @@
 [build]
 builder = "dockerfile"
-buildArgs = ["VITE_SUPABASE_URL=${{VITE_SUPABASE_URL}}", "VITE_SUPABASE_ANON_KEY=${{VITE_SUPABASE_ANON_KEY}}", "VITE_MAPBOX_TOKEN=${{VITE_MAPBOX_TOKEN}}"]
+dockerfilePath = "backend/Dockerfile"
+buildArgs = [
+  "DATABASE_URL=${{DATABASE_URL}}",
+  "DIRECT_URL=${{DIRECT_URL}}",
+  "SUPABASE_URL=${{SUPABASE_URL}}",
+  "SUPABASE_SERVICE_ROLE_KEY=${{SUPABASE_SERVICE_ROLE_KEY}}",
+  "FRONTEND_URL=${{FRONTEND_URL}}",
+  "OPENAI_API_KEY=${{OPENAI_API_KEY}}",
+  "NODE_ENV=production",
+  "PORT=3001"
+]
 
 [deploy]
-startCommand = "nginx -g 'daemon off;'"
-healthcheckPath = "/health"
+startCommand = "npm start"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 numReplicas = 1
 
 [env]
-PORT = "80"
+PORT = "3001"
+NODE_ENV = "production"
