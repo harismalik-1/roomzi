@@ -51,9 +51,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   useEffect(() => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     
+    console.log('🔌 Environment check - VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('🔌 Connecting to WebSocket at:', API_URL);
+    
     const newSocket = io(API_URL, {
       transports: ['websocket'],
       autoConnect: true,
+      forceNew: true,
     });
 
     newSocket.on('connect', () => {

@@ -7,7 +7,11 @@ let io;
 export const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:8080",
+      origin: [
+        process.env.FRONTEND_URL || "http://localhost:8080",
+        "https://roomzi.up.railway.app",
+        "https://balanced-forgiveness-production2.up.railway.app"
+      ],
       methods: ["GET", "POST"],
       credentials: true
     }
