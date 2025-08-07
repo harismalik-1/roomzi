@@ -1,6 +1,9 @@
 // API Base Configuration
 export const getApiBaseUrl = () => {
-  return import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  console.log('🌐 getApiBaseUrl() - VITE_API_URL:', import.meta.env.VITE_API_URL);
+  console.log('🌐 getApiBaseUrl() - Using URL:', apiUrl);
+  return apiUrl;
 };
 
 // Rate limiting configuration
