@@ -1,24 +1,17 @@
+# This railway.toml is for the frontend service
+# Backend service should use backend/railway.toml with root directory set to backend/
+
 [build]
 builder = "dockerfile"
-dockerfilePath = "backend/Dockerfile"
-buildArgs = [
-  "DATABASE_URL=${{DATABASE_URL}}",
-  "DIRECT_URL=${{DIRECT_URL}}",
-  "SUPABASE_URL=${{SUPABASE_URL}}",
-  "SUPABASE_SERVICE_ROLE_KEY=${{SUPABASE_SERVICE_ROLE_KEY}}",
-  "FRONTEND_URL=${{FRONTEND_URL}}",
-  "OPENAI_API_KEY=${{OPENAI_API_KEY}}",
-  "NODE_ENV=production",
-  "PORT=3001"
-]
+dockerfilePath = "frontend/Dockerfile"
+buildArgs = ["VITE_SUPABASE_URL=${{VITE_SUPABASE_URL}}", "VITE_SUPABASE_ANON_KEY=${{VITE_SUPABASE_ANON_KEY}}", "VITE_MAPBOX_TOKEN=${{VITE_MAPBOX_TOKEN}}"]
 
 [deploy]
-startCommand = "npm start"
-healthcheckPath = "/api/health"
+startCommand = "nginx -g 'daemon off;'"
+healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 numReplicas = 1
 
 [env]
-PORT = "3001"
-NODE_ENV = "production"
+PORT = "80"
