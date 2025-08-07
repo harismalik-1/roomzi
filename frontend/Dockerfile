@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies to reduce size
-RUN npm ci --only=production --silent
+RUN npm ci
 
 # Copy source code
 COPY . .
