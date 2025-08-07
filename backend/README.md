@@ -251,7 +251,9 @@ The server includes:
 
 ## Deployment
 
-Make sure to set the environment variables in your deployment environment and run:
+For detailed deployment instructions to Railway, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+For local deployment, make sure to set the environment variables and run:
 
 ```bash
 npm run db:generate
