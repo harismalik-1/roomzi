@@ -4,7 +4,7 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "frontend/Dockerfile"
-buildArgs = ["VITE_SUPABASE_URL=${{VITE_SUPABASE_URL}}", "VITE_SUPABASE_ANON_KEY=${{VITE_SUPABASE_ANON_KEY}}", "VITE_MAPBOX_TOKEN=${{VITE_MAPBOX_TOKEN}}"]
+buildArgs = ["VITE_SUPABASE_URL=${{VITE_SUPABASE_URL}}", "VITE_SUPABASE_ANON_KEY=${{VITE_SUPABASE_ANON_KEY}}", "VITE_MAPBOX_TOKEN=${{VITE_MAPBOX_TOKEN}}", "VITE_API_URL=${{VITE_API_URL}}"]
 
 [deploy]
 startCommand = "nginx -g 'daemon off;'"
