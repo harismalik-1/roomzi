@@ -165,7 +165,7 @@ const LandlordDashboard = () => {
       
       console.log('Fetching properties for user ID:', userId);
       
-      const response = await fetch(`http://localhost:3001/api/landlords/${userId}/listings`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/landlords/${userId}/listings`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

@@ -88,9 +88,9 @@ const Payments = () => {
       formData.append('amount', amount);
       if (file) formData.append('proof', file);
 
-      console.log('Making request to:', 'http://localhost:3001/api/payments');
+      console.log('Making request to:', `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments`);
       
-      const response = await fetch('http://localhost:3001/api/payments', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments`, {
         method: 'POST',
         body: formData,
       });
@@ -104,7 +104,7 @@ const Payments = () => {
           console.log('Success result:', result);
           alert("Payment request successfully submitted. Waiting for landlord's approval.");
           // Re-fetch payments from backend
-          fetch(`http://localhost:3001/api/payments/tenant/${tenantId}`)
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments/tenant/${tenantId}`)
             .then(res => res.json())
             .then(data => {
               if (data.success) setPayments(data.payments);

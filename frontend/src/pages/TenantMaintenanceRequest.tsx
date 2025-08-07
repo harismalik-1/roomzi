@@ -21,7 +21,7 @@ const TenantMaintenanceRequest: React.FC = () => {
   // Fetch landlordId for the current listing
   useEffect(() => {
     if (!listingId) return;
-    fetch(`http://localhost:3001/api/listings/${listingId}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/listings/${listingId}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.data && data.data.landlord_id) {
@@ -34,7 +34,7 @@ const TenantMaintenanceRequest: React.FC = () => {
   useEffect(() => {
     if (!user?.id) return;
     setFetching(true);
-    fetch(`http://localhost:3001/api/maintenance-requests/tenant/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/maintenance-requests/tenant/${user.id}`)
       .then(res => res.json())
       .then(data => {
         console.log('Fetched requests:', data.requests || data);

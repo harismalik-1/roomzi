@@ -268,7 +268,7 @@ const CreateListing = () => {
         
         console.log('Updating listing:', payload);
 
-        const response = await fetch(`http://localhost:3001/api/listings/${currentListing}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/listings/${currentListing}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

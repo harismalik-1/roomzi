@@ -231,7 +231,7 @@ const FinancialAccount = () => {
   // Fetch tenant's leased listings
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`http://localhost:3001/api/tenants/${user.id}/listings`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/tenants/${user.id}/listings`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -246,7 +246,7 @@ const FinancialAccount = () => {
   useEffect(() => {
     if (!user?.id) return;
     setLoadingPayments(true);
-    fetch(`http://localhost:3001/api/payments/tenant/${user.id}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments/tenant/${user.id}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -262,7 +262,7 @@ const FinancialAccount = () => {
   useEffect(() => {
     if (!user?.id) return;
     setLoadingLeases(true);
-    fetch(`http://localhost:3001/api/tenants/${user.id}/leases`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/tenants/${user.id}/leases`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -281,7 +281,7 @@ const FinancialAccount = () => {
     const handlePaymentStatusUpdate = (data: { paymentId: string; status: string; tenantId: string }) => {
       if (data.tenantId === user.id) {
         // Refresh payment requests when a payment status is updated
-        fetch(`http://localhost:3001/api/payments/tenant/${user.id}`)
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments/tenant/${user.id}`)
           .then(res => res.json())
           .then(data => {
             if (data.success) {
@@ -306,7 +306,7 @@ const FinancialAccount = () => {
     
     const interval = setInterval(() => {
       if (!isConnected) {
-        fetch(`http://localhost:3001/api/payments/tenant/${user.id}`)
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/payments/tenant/${user.id}`)
           .then(res => res.json())
           .then(data => {
             if (data.success) {

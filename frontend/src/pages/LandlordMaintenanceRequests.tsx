@@ -32,7 +32,7 @@ const LandlordMaintenanceRequests: React.FC = () => {
       if (!user?.id) return;
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3001/api/maintenance-requests/landlord/${user.id}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/maintenance-requests/landlord/${user.id}`);
         const data = await response.json();
         
         if (data.success && data.requests) {
@@ -65,7 +65,7 @@ const LandlordMaintenanceRequests: React.FC = () => {
     }
     // For Pending/In Progress, update directly
     try {
-      const response = await fetch(`http://localhost:3001/api/maintenance-requests/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/maintenance-requests/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
