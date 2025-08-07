@@ -317,7 +317,7 @@ const CreateListing = () => {
         
         console.log('Creating listing:', payload);
 
-        const response = await fetch('http://localhost:3001/api/landlord/create-listing', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/landlord/create-listing`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

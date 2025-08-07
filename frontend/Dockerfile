@@ -37,4 +37,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } location /health { return 200 "OK"; } }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]# Cache bust Thu Aug  7 00:20:44 EDT 2025
+# Cache bust Thu Aug  7 00:20:44 EDT 2025
+CMD ["nginx", "-g", "daemon off;"]
