@@ -1,6 +1,12 @@
 import axios from 'axios';
 
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
+// Hardcode the production API URL to bypass Railway build issues
+const getApiUrl = () => {
+  const isProduction = window.location.hostname !== 'localhost';
+  return isProduction ? 'https://roomzi-backend.up.railway.app' : 'http://localhost:3001';
+};
+
+const API_URL = `${getApiUrl()}/api`;
 
 export interface ChatRoom {
   id: string;

@@ -1,6 +1,11 @@
 // API Base Configuration
 export const getApiBaseUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  // Hardcode the production API URL to bypass Railway build issues
+  const isProduction = window.location.hostname !== 'localhost';
+  const apiUrl = isProduction ? 'https://roomzi-backend.up.railway.app' : 'http://localhost:3001';
+  
+  console.log('🌐 getApiBaseUrl() - hostname:', window.location.hostname);
+  console.log('🌐 getApiBaseUrl() - isProduction:', isProduction);
   console.log('🌐 getApiBaseUrl() - VITE_API_URL:', import.meta.env.VITE_API_URL);
   console.log('🌐 getApiBaseUrl() - Using URL:', apiUrl);
   return apiUrl;

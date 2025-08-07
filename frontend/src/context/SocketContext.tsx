@@ -49,8 +49,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    // Hardcode the production API URL to bypass Railway build issues
+    const isProduction = window.location.hostname !== 'localhost';
+    const API_URL = isProduction ? 'https://roomzi-backend.up.railway.app' : 'http://localhost:3001';
     
+    console.log('🔌 Environment check - hostname:', window.location.hostname);
+    console.log('🔌 Environment check - isProduction:', isProduction);
     console.log('🔌 Environment check - VITE_API_URL:', import.meta.env.VITE_API_URL);
     console.log('🔌 Connecting to WebSocket at:', API_URL);
     
