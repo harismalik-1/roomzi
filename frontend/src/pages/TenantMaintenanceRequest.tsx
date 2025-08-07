@@ -57,7 +57,7 @@ const TenantMaintenanceRequest: React.FC = () => {
     formData.append("description", description);
     images.forEach((img) => formData.append("images", img));
 
-    const res = await fetch("http://localhost:3001/api/maintenance-requests", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/maintenance-requests`, {
       method: "POST",
       body: formData,
     });

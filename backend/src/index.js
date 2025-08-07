@@ -25,6 +25,8 @@ const io = initializeSocket(server);
 const corsOptions = {
   origin: [
     process.env.FRONTEND_URL || "http://localhost:8080",
+    "https://roomzi.up.railway.app",
+    "https://balanced-forgiveness-production2.up.railway.app",
     "http://localhost:8081","http://localhost:8082",
     "http://localhost:8083",
     "http://localhost:8084",
